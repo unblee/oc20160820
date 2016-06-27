@@ -57,16 +57,14 @@ StackProf.run(mode: :cpu, raw: true, out: "stackprof/#{git_rev}") do
   def convert2csv(utf8_file_name)
     dic_file_name = utf8_file_name.sub(".utf8.txt", ".csv")
     return dic_file_name if File.exists?(dic_file_name)
-    open(dic_file_name, "ab") do |outfile|
-      open(utf8_file_name, "rb:UTF-8") do |utf8_file|
-        buf = utf8_file.read
-        buf.each_line do |line|
-          word = line.split(/\t/)
-          content = word[1] << "0,0" << word_cost(word[1]).to_s << "名詞,固有名詞,*,*,*,*" << word[1] << word[0] << word[0]
-          outfile.puts(content)
-        end
-      end
+    outfile = open(dic_file_name, "ab")
+    buf = open(utf8_file_name, "rb:UTF-8").read
+    buf.each_line do |line|
+      word = line.split(/\t/)
+      content = word[1] << "0,0" << word_cost(word[1]).to_s << "名詞,固有名詞,*,*,*,*" << word[1] << word[0] << word[0]
+      outfile.puts(content)
     end
+    outfile.close
   end
 
   def word_cost(word)
