@@ -62,8 +62,7 @@ StackProf.run(mode: :cpu, raw: true, out: "stackprof/#{git_rev}") do
         buf = utf8_file.read
         buf.each_line do |line|
           word = line.split(/\t/)
-          content_arr = [word[1],"0","0",word_cost(word[1]),"名詞","固有名詞","*","*","*","*",word[1],word[0],word[0]]
-          content = content_arr.join(",")
+          content = word[1] << "0,0" << word_cost(word[1]).to_s << "名詞,固有名詞,*,*,*,*" << word[1] << word[0] << word[0]
           outfile.puts(content)
         end
       end
