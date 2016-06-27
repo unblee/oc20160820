@@ -44,8 +44,8 @@ StackProf.run(mode: :cpu, raw: true, out: "stackprof/#{git_rev}") do
     return dic_file_name if File.exists?(dic_file_name)
     outfile = open(dic_file_name, "ab")
     buf = open(raw_file_name, "rb:UTF-16:UTF-8").read
-    buf.each_line.with_index(1) do |line, idx|
-      next line if idx == 1
+    buf.sub!("!Microsoft IME Dictionary Tool\n", "")
+    buf.each_line do |line|
       word = line.split(/\t/)
       content = word[1] << "0,0" << word_cost(word[1]).to_s << "名詞,固有名詞,*,*,*,*" << word[1] << word[0] << word[0]
       outfile.puts(content)
