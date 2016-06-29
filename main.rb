@@ -10,8 +10,7 @@ StackProf.run(mode: :cpu, raw: true, out: "stackprof/#{git_rev}") do
   def main
     zip_file_name = get_file("http://web-apps.nbookmark.com/hatena-dic/hatena_msime_nocomment.zip")
     raw_file_name = unzip_file(zip_file_name)
-    utf8_file_name = convert_utf16to8(raw_file_name)
-    convert2csv(utf8_file_name)
+    convert2csv(raw_file_name)
   end
 
   def get_file(url)
@@ -40,26 +39,13 @@ StackProf.run(mode: :cpu, raw: true, out: "stackprof/#{git_rev}") do
     unzip_file_name
   end
 
-  def convert_utf16to8(raw_file_name)
-    utf8_file_name = raw_file_name.sub(".txt", ".utf8.txt")
-    return utf8_file_name if File.exists?(utf8_file_name)
-    open(utf8_file_name, "ab") do |outfile|
-      buf = open(raw_file_name, "rb").read
-      buf.encode!(Encoding::UTF_8, Encoding::UTF_16, invalid: :replace, undef: :replace, replace: "*")
-      buf.each_line do |line|
-        next line if /^!/ =~ line
-        outfile.puts(line)
-      end
-    end
-    utf8_file_name
-  end
-
-  def convert2csv(utf8_file_name)
-    dic_file_name = utf8_file_name.sub(".utf8.txt", ".csv")
+  def convert2csv(raw_file_name)
+    dic_file_name = raw_file_name.sub(".txt", ".csv")
     return dic_file_name if File.exists?(dic_file_name)
     outfile = open(dic_file_name, "ab")
-    buf = open(utf8_file_name, "rb:UTF-8").read
-    buf.each_line do |line|
+    buf = open(raw_file_name, "rb:UTF-16:UTF-8").read
+    buf.each_line.with_index(1) do |line, idx|
+      next line if idx == 1
       word = line.split(/\t/)
       content = word[1] << "0,0" << word_cost(word[1]).to_s << "名詞,固有名詞,*,*,*,*" << word[1] << word[0] << word[0]
       outfile.puts(content)
